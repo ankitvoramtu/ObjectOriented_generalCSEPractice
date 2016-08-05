@@ -1,22 +1,20 @@
 import json
 import random
 
+from collections import defaultdict
+	
 def question1(s, t):
-	return True if (t[::-1] in s or t in s) else False
-	# for val in range(len(t)):
-	# 	found = True
-	# 	if t[val] not in s:
-	# 		found= False
-	# 		break
-	# 	else:
-	# 		count = 0
-	# 		ss = list(s)
-	# 		for l in ss:
-	# 			count+=1 
-	# 			if l==t[val]:
-	# 				del ss[count]
-	# 				break
-	# return found
+	length = len(s)
+	subStrings =  [s[i:j+1] for i in xrange(length) for j in xrange(i,length)]
+
+	for word in subStrings:
+	    table = defaultdict(list)
+	    table[''.join(sorted(word.lower()))].append(word)
+	    table[''.join(sorted(t.lower()))].append(t)
+	    if [v for k,v in table.items() if len(v)>1]:
+	        return True
+	return False
+
 
 def question2(a):
     possibleChoices = []
@@ -32,8 +30,6 @@ def question3(G):
 	chosenEdges = []
 	s32 = G
 	chosenVertex.append(random.choice(s32.keys()))
-	#chosenVertex.append('A')
-	#print chosenVertex
 	weightTable = []
 	for key in s32:
 	    for val in s32[key]:
@@ -41,7 +37,6 @@ def question3(G):
 	        if [val[1],v[0],v[1]] not in weightTable:
 	            weightTable.append([val[1],v[0],v[1]]) 
 	weightTable =  sorted(weightTable)
-	#print weightTable
 	completeVertexes = sorted(list(set([key for key in s32 for val in s32[key] ] + 
 	                            [val[0] for key in s32 for val in s32[key]])))
 	while(chosenVertex != completeVertexes):   
@@ -53,10 +48,8 @@ def question3(G):
 	                chosenVertex.append(val[2] if val[2] not in chosenVertex else val[1])
 	                chosenVertex = sorted(chosenVertex)
 	                break
-	print 'chosenVertex = {},\nchosenEdges = {}'.format(chosenVertex,chosenEdges)
 	answer = {}
 	for val in chosenVertex:
-		print val
 		for edge in chosenEdges:
 			if val in edge:
 				if val in answer:
@@ -67,154 +60,130 @@ def question3(G):
 
 
 def question4(T, r, n1, n2): # question4(tree, 4,1,12)
-	class Node:
-	    def __init__(self,val):
-	        self.value = val
-	        self.leftChild = None
-	        self.rightChild = None
-	    def insert(self, data):
-	        if self.value == data:
-	            return False	
-	        elif self.value > data:
-	            if self.leftChild: 
-	                return self.leftChild.insert(data)
-	            else:
-	                self.leftChild = Node(data)
-	                return True
-	        else: 
-	            if self.rightChild:
-	                return self.rightChild.insert(data)
-	            else:
-	                self.rightChild = Node(data)
-	                return True
-	        
-	class Tree: 
-	    def __init__(self):
-	        self.root = None
-	    def insert(self, data):
-	        if self.root:
-	            return self.root.insert(data)
-	        else:
-	            self.root = Node(data)
-	            return True
-	    def table(self, r):
-	        self.insert(r)
-	        for i,val in enumerate(tree[r-1]):
-	            if val == 1: 
-	                return self.table(i)
-
-	# def getChildren(Tree, node):
-	#     # read the row in the Tree that belongs to the node, checking each spot for a child
-	#     for position in Tree[node]:
-	#         if position == 1:
-	#             # you found a child node, now insert it!
 	
-	# def getChildren(T,r):
-	# 	tree = Tree(r)
-	# 	# read the row in the Tree that belongs to the node, checking each spot for a child
-	# 	for row in T:
-	# 		for i, position in enumerate(row):
-	# 			if position == 1:
-	# 				tree.insert(i)
-	#getChildren(T,r)
+	class Node:
+		def __init__(self, val):
+			self.value = val+1
+			self.connects = []
+		def addConnect(self, node):
+			self.connects.append(node)
+		def printConnect(self):
+			return self.value
 
-	theTree = Tree()
-	theTree.table(r)
+	arrayOfNodes =  [ Node(node) for node in range(10)]
+	for i, row in enumerate(tree):
+		for inode, j in enumerate(row):
+			if j == 1: 
+				arrayOfNodes[i].addConnect(arrayOfNodes[inode])
 
-	def lca(root, n1, n2):
-		if( root > n1 and root > n2):
-			return lca(root.left, n1, n2)
-		elif(root < n1 and root < n2):
-			return lca(root.right, n1, n2)
-		else:
-			return root
-def question5(ll,m): 
-	class Node(object):
+	class dynamicTree:
+		def __init__(self, val):
+		 	self.roots = []
 
-	    def __init__(self, data=None, count = None, next_node=None):
-	        self.data = data
-	        self.c = count
-	        self.next_node = next_node
+		def lca(r, n1, n2):
+			chooseableNode = []
+			self.roots.append(arrayOfNodes[r-1].value) # remove value
 
-	    def get_data(self):
-	        return self.data
-	    
-	    def get_i(self):
-	        return self.c
+			if arrayOfNodes[r-1].value > n1 and arrayOfNodes[r-1].value > n2:
+				for val in arrayOfNodes[r-1].connects:
+					if val not in roots:
+						chooseableNode.append(val)
+				#if chooseableNode[1]:
+				if chooseableNode[0].value < chooseableNode[1].value:
+					return lca(chooseableNode[0],n1, n2)
+				else:
+					return lca(chooseableNode[1],n1, n2)
+				#else: return lca(chooseableNode[0],n1, n2) 
+			elif arrayOfNodes[r-1].value < n1 and arrayOfNodes[r-1].value < n2:
+				for val in arrayOfNodes[r-1].connects:
+					if val not in roots:
+						chooseableNode.append(val)
+				if chooseableNode[0].value < chooseableNode[1].value:
+					return lca(chooseableNode[1],n1, n2)
+				else:
+					return lca(chooseableNode[0],n1, n2)
+				
+				# append arrayOfNodes[r-1].value to roots.append(arrayOfNodes[r-1].value)
+				# for val in connects: if val not in roots, append to choosable array
+				# choose min or MAX value
+			else:
+				return arrayOfNodes[r-1].value 
 
-	    def get_next(self):
-	        return self.next_node
+class Nodee(object):
+	def __init__(self, data):
+		self.data = data
+		self.next = None
 
-	    def set_next(self, new_next):
-	        self.next_node = new_next
+def question5(ll,m):
+	length = 1
+	root = ll
+	while root.next:
+		length = length+1
+		root = root.next
+	root = ll
+	count = 0 
+	while count< length-m:
+		count = count+1
+		root = root.next
 
-	class LinkedList(object):
-	    def __init__(self, head=None):
-	        self.head = head
-	        self.c =0
-	    def insert(self, data):
-	        self.c+=1
-	        new_node = Node(data,self.c)
-	        new_node.set_next(self.head)
-	        self.head = new_node
-	    def size(self):
-	        current = self.head
-	        count = 0
-	        while current:
-	            count += 1
-	            current = current.get_next()
-	        return count
-	    def search(self, data):
-	        current = self.head
-	        found = False
-	        while current and found is False:
-	            if current.get_i() == data:
-	                found = True
-	            else:
-	                current = current.get_next()
-	        if current is None:
-	            raise ValueError("Data not in list")
-	        return current
-	    def printer(self):
-	        current = self.head
-	        while current:
-	            print current.get_i()
-	            current = current.get_next()
-	    def makeLinked(self, array):
-	        for val in array:
-	            self.insert(val)
-	    def getMth(self, m):
-	        m = m-1
-	        newIndex = self.size()-m
-	        found = self.search(newIndex)
-	        return found.get_data()
+	return root.data
 
-	linked = LinkedList()
-	linked.makeLinked(ll)
-	return linked.getMth(m)
 
-def main():
+def main():	
+
+	print '\nQuestion 1:'
+	q1 = [('udacity', 'ty'),('tyudacity', 'ty'),('elephant', 'cart')]
+	for test in q1:
+		print question1(test[0],test[1])
+
+	print '\nQuestion 2:'
+	word = ['kayakhello','kayak','notaplindrome', 'a']
+	for a in word: 
+		print question2(a)
+
+	print '\nQuestion 3:'	
+	s32 = {'A':[('E',5),('H',6),('F',1),('B',8),('B',8)],'B':[('F',6),('C',4)],'C':[('F',2),('G',7)],'G':[('F',9)],'F':[('H',5)],'H':[('E',3)]}
+	print question3(s32),'\n-\n'
+	s32 = {'A':[('E',5),('H',6),('F',1)],'B':[('F',6),('D',4)],'C':[('F',2),('A',7)],'G':[('D',9)],'F':[('A',5)],'H':[('F',3)]}
+	print question3(s32),'\n-\n'
+	s32 = {'A':[('B',5),('C',6),('D',1),('B',8),('B',8)],'B':[('D',6),('F',4)],'C':[('D',2),('E',7)],'G':[('C',9)],'F':[('B',5)],'H':[('A',3)]}
+	print question3(s32),'\n-\n'
+
+	print '\nQuestion 4:'	
+	#question4(tree, 4,1,12)
+	
+	print '\nQuestion 5:'	
+	root = Nodee(1)
+	root.next = Nodee(2)
+	root.next.next = Nodee(3)
+	root.next.next.next = Nodee(4)
+	print question5(root, 2)
+	#[(),(),()]
+
+	del root
+
+
 	## Functions
+	pass
 	#print question1(s,t)
 	#print question2(word)
 	#print question3(s32)
-	question4(tree, 4,1,12)
+	#question4(tree, 4,1,12)
 	# makeLinked = LinkedList()
 	# headNode = makeLinked.getHeadNode()
+	#root = Node()
 	#print question5(ll,m) # ll (first node is 3), m mth num from end
 
 
 
 
 ## Variables 
+
 # for # 1
 s = 'udacityy'
 t = 'ty'
 # for # 2
-#word = 'kayakhello'
-word = 'kayak'
-word = 'notaplindrome'
-word = 'a'
+word = ['kayakhello','kayak','notaplindrome', 'a']
 # for # 3 
 s32 = {'A':[('E',5),('H',6),('F',1),('B',8),('B',8)],'B':[('F',6),('C',4)],'C':[('F',2),('G',7)],'G':[('F',9)],'F':[('H',5)],'H':[('E',3)]}
 # for # 4
