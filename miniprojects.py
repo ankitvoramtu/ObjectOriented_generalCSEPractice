@@ -2,17 +2,21 @@ import json
 import random
 
 from collections import defaultdict
-	
-def question1(s, t):
-	length = len(s)
-	subStrings =  [s[i:j+1] for i in xrange(length) for j in xrange(i,length)]
 
-	for word in subStrings:
-	    table = defaultdict(list)
-	    table[''.join(sorted(word.lower()))].append(word)
-	    table[''.join(sorted(t.lower()))].append(t)
-	    if [v for k,v in table.items() if len(v)>1]:
-	        return True
+
+def question1(s, t):
+	# q1 = [('udacity', 'ty'),('tyudacity', 'ty'),('elephant', 'cart')]
+	length = len(s)
+	#subStrings =  [s[i:j+1] for i in xrange(length) for j in xrange(i,length)]
+
+	for i in xrange(length):
+		for j in xrange(i,length):
+			word = s[i:j+1]
+			table = defaultdict(list)
+			table[''.join(sorted(word.lower()))].append(word)
+			table[''.join(sorted(t.lower()))].append(t)
+			if [v for k,v in table.items() if len(v)>1]:
+				return True
 	return False
 
 
@@ -71,7 +75,7 @@ def question4(T, r, n1, n2): # question4(tree, 4,1,12)
 			return self.value
 
 	arrayOfNodes =  [ Node(node) for node in range(10)]
-	for i, row in enumerate(tree):
+	for i, row in enumerate(T):
 		for inode, j in enumerate(row):
 			if j == 1: 
 				arrayOfNodes[i].addConnect(arrayOfNodes[inode])
@@ -82,26 +86,28 @@ def question4(T, r, n1, n2): # question4(tree, 4,1,12)
 
 		def lca(r, n1, n2):
 			chooseableNode = []
-			self.roots.append(arrayOfNodes[r-1].value) # remove value
+			self.roots.append(arrayOfNodes[r-1]) # remove value
 
 			if arrayOfNodes[r-1].value > n1 and arrayOfNodes[r-1].value > n2:
 				for val in arrayOfNodes[r-1].connects:
 					if val not in roots:
 						chooseableNode.append(val)
-				#if chooseableNode[1]:
-				if chooseableNode[0].value < chooseableNode[1].value:
-					return lca(chooseableNode[0],n1, n2)
-				else:
-					return lca(chooseableNode[1],n1, n2)
-				#else: return lca(chooseableNode[0],n1, n2) 
+				if chooseableNode[1]:
+					if chooseableNode[0].value < chooseableNode[1].value:
+						return lca(chooseableNode[0],n1, n2)
+					else:
+						return lca(chooseableNode[1],n1, n2)
+				else: return lca(chooseableNode[0],n1, n2) 
 			elif arrayOfNodes[r-1].value < n1 and arrayOfNodes[r-1].value < n2:
 				for val in arrayOfNodes[r-1].connects:
 					if val not in roots:
 						chooseableNode.append(val)
-				if chooseableNode[0].value < chooseableNode[1].value:
-					return lca(chooseableNode[1],n1, n2)
-				else:
-					return lca(chooseableNode[0],n1, n2)
+				if chooseableNode[1]:
+					if chooseableNode[0].value < chooseableNode[1].value:
+						return lca(chooseableNode[1],n*1, n2)
+					else:
+						return lca(chooseableNode[0],n1, n2)
+				else: return lca(chooseableNode[0],n1, n2) 
 				
 				# append arrayOfNodes[r-1].value to roots.append(arrayOfNodes[r-1].value)
 				# for val in connects: if val not in roots, append to choosable array
@@ -113,6 +119,7 @@ class Nodee(object):
 	def __init__(self, data):
 		self.data = data
 		self.next = None
+
 
 def question5(ll,m):
 	length = 1
@@ -150,44 +157,7 @@ def main():
 	print question3(s32),'\n-\n'
 
 	print '\nQuestion 4:'	
-	#question4(tree, 4,1,12)
-	
-	print '\nQuestion 5:'	
-	root = Nodee(1)
-	root.next = Nodee(2)
-	root.next.next = Nodee(3)
-	root.next.next.next = Nodee(4)
-	print question5(root, 2)
-	#[(),(),()]
-
-	del root
-
-
-	## Functions
-	pass
-	#print question1(s,t)
-	#print question2(word)
-	#print question3(s32)
-	#question4(tree, 4,1,12)
-	# makeLinked = LinkedList()
-	# headNode = makeLinked.getHeadNode()
-	#root = Node()
-	#print question5(ll,m) # ll (first node is 3), m mth num from end
-
-
-
-
-## Variables 
-
-# for # 1
-s = 'udacityy'
-t = 'ty'
-# for # 2
-word = ['kayakhello','kayak','notaplindrome', 'a']
-# for # 3 
-s32 = {'A':[('E',5),('H',6),('F',1),('B',8),('B',8)],'B':[('F',6),('C',4)],'C':[('F',2),('G',7)],'G':[('F',9)],'F':[('H',5)],'H':[('E',3)]}
-# for # 4
-tree = [[0,1,0,0,0,0,0,0,0,0],
+	tree = [[0,1,0,0,0,0,0,0,0,0],
 		[1,0,1,1,0,0,0,0,0,0],
 		[0,1,0,0,0,0,0,0,0,0],
 		[0,1,0,0,0,0,1,0,0,0],
@@ -197,7 +167,31 @@ tree = [[0,1,0,0,0,0,0,0,0,0],
 		[0,0,0,0,0,0,0,0,1,0],
 		[0,0,0,0,0,0,1,1,0,1],
 		[0,0,0,0,0,0,0,0,1,0]]
-# for # 5 
-ll = [3,5,4,2,1]; m = 2
+	question4(tree, 4,1,12)
+	
+	print '\nQuestion 5:'	
+	root = Nodee(1)
+	root.next = Nodee(2)
+	root.next.next = Nodee(3)
+	root.next.next.next = Nodee(4)
+	print question5(root, 2)
+
+	del root
+
+	root = Nodee(5)
+	root.next = Nodee(4)
+	root.next.next = Nodee(2)
+	root.next.next.next = Nodee(1)
+	root.next.next.next.next = Nodee(3)
+	root.next.next.next.next.next = Nodee(23)
+	root.next.next.next.next.next.next = Nodee(31)
+	print question5(root, 4)
+
+	del root
+
+	root = Nodee(1)
+	root.next = Nodee(2)
+	print question5(root, 1)
+
 if __name__ == '__main__':
 	main()
